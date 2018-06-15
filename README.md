@@ -13,7 +13,23 @@ modelo de machine learning para encontrar nuevas canciones que os gusten.
 ### Ejemplos
 
 Distintas técnicas y métricas se están probando actualmente.
-En la carpeta [imagenes]()
+En la carpeta
+[imagenes](https://github.com/cperales/Fourier-classifying-songs/tree/master/imagenes)
+se puede ver un ejemplo, donde automáticamente se han asignado canciones
+de Miley Cyrus a un clúster 
+
+![alt text](https://raw.githubusercontent.com/cperales/Fourier-classifying-songs/master/imagenes/cluster_1/Malibu_Miley_Cyrus.png "Malibu")
+
+![alt text](https://raw.githubusercontent.com/cperales/Fourier-classifying-songs/master/imagenes/cluster_1/You're_gonna_make_me_lonesome_when_you_go_Miley_Cyrus.png "You're gonna make me lonesome when you go")
+
+y canciones de The Cranberries (y una de los Beatles) a otro.
+
+![alt text](https://raw.githubusercontent.com/cperales/Fourier-classifying-songs/master/imagenes/cluster_2/Zombie_The_Cranberries.png "Zombie - The Cranberries")
+![alt text](https://raw.githubusercontent.com/cperales/Fourier-classifying-songs/master/imagenes/cluster_2/Dreams_The_Cranberries.png "Dreams - The Cranberries")
+![alt text](https://raw.githubusercontent.com/cperales/Fourier-classifying-songs/master/imagenes/cluster_2/Here_Comes_the_Sun_The_Beatles.png "Here Comes the Sun - The Beatles")
+
+Se puede ver, además, que las gráficas de las canciones de ambos clústers
+son parecidas entre sí pero diferentes a las del otro grupo.
 
 ## Motivación
 Quienes tengan una cuenta en **Spotify** que usen a menudo sabrán que cada
