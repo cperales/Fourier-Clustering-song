@@ -10,6 +10,11 @@ Teniendo un conjunto de canciones, ¿cuáles son las más similares entre sí?
 solo las frecuencias, identificaremos canciones similares y crearemos un
 modelo de machine learning para encontrar nuevas canciones que os gusten.
 
+### Ejemplos
+
+Distintas técnicas y métricas se están probando actualmente.
+En la carpeta [imagenes]()
+
 ## Motivación
 Quienes tengan una cuenta en **Spotify** que usen a menudo sabrán que cada
 semana te recomiendan nuevas canciones, bajo la lista *Descubrimiento Semanal*.
