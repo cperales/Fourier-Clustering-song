@@ -1,6 +1,10 @@
 # Clustering de canciones mediante Fourier
 
-## Abstract
+*README is still in spanish because this packages is for
+[PyCon ES 2018](https://2018.es.pycon.org/).
+But it will translated into English*
+
+## Resumen
 Teniendo un conjunto de canciones, ¿cuáles son las más similares entre sí?
 ¿Podremos crear playlists de canciones que tengan un ritmo similar? Analizando
 solo las frecuencias, identificaremos canciones similares y crearemos un
