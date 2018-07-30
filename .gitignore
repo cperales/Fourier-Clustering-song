@@ -14,7 +14,6 @@ env/
 *.png
 *.mp3
 *.wav
-*.pkl
 
 # Config files
 *.ini

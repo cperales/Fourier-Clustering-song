@@ -16,9 +16,8 @@ all_songs(source_folder=source_folder,
           temp_folder=temp_folder,
           rate_limit=6000,
           overwrite=True,
-          removing=True,
-          plotting=True,
-          image_folder=image_folder)
+          plot=False,
+          image_folder=None)
 
 
 # distance_limit = 0.14  # fastdtw

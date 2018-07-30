@@ -1,13 +1,10 @@
 import multiprocessing as mp
 import os
-import pickle
+import json
 import subprocess
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io.wavfile import read
-
-# Enable multiprocessing
-cpus = mp.cpu_count()
 
 
 def removing_spaces(source_folder):
@@ -64,7 +61,7 @@ def fourier_song(wav_file,
 
     # a = np.mean(fourier_to_plot)
     fourier_to_plot[np.argmax(fourier_to_plot)] = 0.0
-    a = np.max(fourier_to_plot) / 20.0  # Max frequency will be 20.0
+    a = np.max(fourier_to_plot) / 100.0  # Max frequency will be 100.0
     fourier_to_plot = fourier_to_plot / a
 
     return w, fourier_to_plot
@@ -133,16 +130,77 @@ def fourier_plot(freq, features,
     plt.close(fig)
 
 
+def time_to_frequency(song,
+                      source_folder,
+                      temp_folder,
+                      output_folder,
+                      rate_limit=6000.0,
+                      overwrite=True,
+                      plot=True,
+                      image_folder=None):
+    """
+    Transform a MP3 song into WAV format, and then into
+    Fourier series.
+
+    :param str song: name of the song, with MP3 extension.
+    :param str source_folder: folder where MP3 files are.
+    :param str output_folder: folder where pickle files from
+        frequency series are saved.
+    :param str temp_folder: folder where wav files are saved.
+    :param float rate_limit: maximum frequency of the frequency
+        series.
+    :param bool overwrite:
+    :param bool plot: if True, frequency series is plotted.
+    :param image_folder: if plotting is True, is the folder
+        where the Fourier data is saved.
+    :return:
+    """
+    song_name = os.path.splitext(song)[0]
+    json_name = song_name + '.json'
+
+    # Name of files
+    mp3_file = os.path.join(source_folder, song)
+    wav_file = os.path.join(temp_folder, song_name + '.wav')
+
+    # Transform MP3 into WAV
+    transform_wav(mp3_file=mp3_file,
+                  wav_file=wav_file)
+
+    full_json_name = os.path.join(output_folder, json_name)
+    if not os.path.isfile(full_json_name) or overwrite is True:
+        # Fourier transformation
+        frequencies, fourier_series = fourier_song(wav_file=wav_file,
+                                                   rate_limit=rate_limit)
+
+        # Transform to dict
+        freq_dict = dict()
+        for x, y in zip(frequencies, fourier_series):
+            freq_dict.update({str(x): y})
+
+        # Save as JSON
+        json_to_save = {song: freq_dict}
+        with open(full_json_name, 'w') as output:
+            json.dump(json_to_save, output)
+
+        # Plotting
+        if plot is True:
+            fourier_plot(freq=frequencies,
+                         features=fourier_series,
+                         folder=image_folder,
+                         filename=song_name)
+
+
 def all_songs(source_folder,
               output_folder,
               temp_folder,
               rate_limit=6000.0,
-              overwrite=False,
-              removing=True,
-              plotting=False,
+              overwrite=True,
+              plot=False,
               image_folder=None):
     """
-    Transform MP3 into wave and into pickle afterwards.
+    Transform a directory full of MP3 files
+    into WAVE files, and then into Fourier series,
+    working with directories.
 
     :param str source_folder: folder where MP3 files are.
     :param str output_folder: folder where pickle files from
@@ -150,13 +208,10 @@ def all_songs(source_folder,
     :param str temp_folder: folder where wav files are saved.
     :param float rate_limit: maximum frequency of the frequency
         series.
-    :param bool overwrite: if True, wav files are overwritten.
-    :param bool removing: if True, wav files are removed after
-        Fourier transform.
-    :param bool plotting: if True, frequency series is plotted.
+    :param bool overwrite:
+    :param bool plot: if True, frequency series is plotted.
     :param image_folder: if plotting is True, is the folder
         where the Fourier data is saved.
-    :return:
     """
     if not os.path.isdir(temp_folder):
         os.makedirs(temp_folder)
@@ -164,39 +219,12 @@ def all_songs(source_folder,
     if not os.path.isdir(output_folder):
         os.makedirs(output_folder)
 
-    if plotting is True and not os.path.isdir(image_folder):
+    if plot is True and not os.path.isdir(image_folder):
         os.makedirs(image_folder)
 
-    for song in os.listdir(source_folder):
-        song_name = os.path.splitext(song)[0]
-        pickle_name = os.path.join(output_folder,
-                                   song_name + '.pkl')
+    songs = [(song, source_folder, temp_folder, output_folder, rate_limit,
+              overwrite, plot, image_folder)
+             for song in os.listdir(source_folder)]
 
-        if not os.path.isfile(pickle_name) or overwrite is True:
-            # Name of files
-            mp3_file = os.path.join(source_folder, song)
-            wav_file = os.path.join(temp_folder, song_name + '.wav')
-
-            # Transform MP3 into WAV
-            transform_wav(mp3_file=mp3_file,
-                          wav_file=wav_file)
-
-            # Fourier transformation
-            frequencies, fourier_series = fourier_song(wav_file=wav_file,
-                                                       rate_limit=rate_limit)
-
-            # Removing wav file
-            if removing is True:
-                os.remove(wav_file)
-
-            # Save pickle
-            with open(pickle_name, 'wb') as output:
-                tuple_to_save = frequencies, fourier_series
-                pickle.dump(tuple_to_save, output)
-
-            # Plotting
-            if plotting is True:
-                fourier_plot(freq=frequencies,
-                             features=fourier_series,
-                             folder=image_folder,
-                             filename=song_name)
+    with mp.Pool(processes=int(mp.cpu_count() / 2)) as p:
+        p.starmap(time_to_frequency, songs)
