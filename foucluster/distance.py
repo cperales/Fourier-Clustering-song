@@ -1,11 +1,8 @@
 import numpy as np
-from .load import load_as_dict, load_interpolator
-from .transform import fourier_plot, limit_by_freq, group_by_freq
+from .transform import limit_by_freq, group_by_freq, dict_to_array
 import os
-import pickle
-import multiprocessing
-from random import shuffle
 from copy import deepcopy
+import json
 # from scipy.integrate import quad
 # from dtw import dtw, fastdtw
 
@@ -107,50 +104,45 @@ def pair_distance(song_x,
     :param distance_metric:
     :return:
     """
+    # Extract frequencies and features
+    with open(song_x, 'r') as song_x_json:
+        song_x_dict = json.load(song_x_json)
+        freq_x, features_x = dict_to_array(song_x_dict)
+
+    # Extract frequencies and features
+    with open(song_y, 'r') as song_y_json:
+        song_y_dict = json.load(song_y_json)
+        freq_y, features_y = dict_to_array(song_y_dict)
+
     # FILTERING FREQUENCIES, LESS INFORMATION
-    frequencies, features = limit_by_freq(frequencies,
-                                          features,
-                                          upper_limit=6000)
+    freq_x, features_x = limit_by_freq(freq_x,
+                                       features_x,
+                                       upper_limit=6000)
+    # There is an interpolation in song_y, so there is no need
+    # of limiting by frequencies again
 
     # TIME FRAMES
     distance = 0.0
-    freq_div = np.max(frequencies) / frames
+    freq_div = np.max(freq_x) / frames
     for i in range(1, frames + 1):
         bottom_limit = (i - 1) * freq_div
         upper_limit = i * freq_div
-        frequencies_copy, features_copy = limit_by_freq(frequencies,
-                                                        features,
-                                                        upper_limit=upper_limit,
-                                                        bottom_limit=bottom_limit)
-        features_1_copy = np.interp(frequencies_copy,
-                                    frequencies_1,
-                                    features_1)
+        freq_x_frame, features_x_frame = limit_by_freq(freq_x,
+                                                       features_x,
+                                                       upper_limit=upper_limit,
+                                                       bottom_limit=bottom_limit)
+        features_y_frame = np.interp(freq_x_frame,
+                                     freq_y,
+                                     features_y)
 
         if warp is None:
-            distance_metric = distance_dict[dis]
-
-        frame_dist = positive_error(features_copy, features_1_copy)
-        # frame_dist = hellinger(features_copy, features_1_copy)
-        # frame_dist = integrate(features_copy, features_1_copy)
-        # frame_dist = l2_norm(features_copy, features_1_copy)
-        # frame_dist, cost, acc, path = fastdtw(features_copy, features_1_copy, dist='euclidean')
-        print('{}: Frame {}, dist = {}'.format(song_name, i, frame_dist))
+            frame_dist = distance_dict[distance_metric](features_x_frame,
+                                                        features_y_frame)
+        else:
+            frame_dist = warp_distance(distance_metric,
+                                       features_x_frame,
+                                       features_y_frame,
+                                       warp)
         distance += frame_dist
-        if distance > dist_limit:
-            print('{}: Distance with {} exceeded'.format(song_name, song_name_1))
-            break
 
-    if distance <= dist_limit:
-        print('{}: Total distance with {} = {}'.format(song_name, song_name_1, distance))
-        avg_distance = distance
-        for full_sub_folder, songs in songs_stored_dict.items():
-            if song_name_1 in songs:
-                sub_folder = full_sub_folder
-                text_file = os.path.join(full_sub_folder, 'list_songs.txt')
-                break
-        dist_limit = distance - eps  # Adapt the song to the bst
-
-    else:
-        avg_distance = 0.0
-
-    return avg_distance
+    return distance

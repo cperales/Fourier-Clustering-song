@@ -15,7 +15,7 @@ all_songs(source_folder=source_folder,
           output_folder=output_folder,
           temp_folder=temp_folder,
           rate_limit=6000,
-          overwrite=True,
+          overwrite=False,
           plot=False,
           image_folder=None)
 

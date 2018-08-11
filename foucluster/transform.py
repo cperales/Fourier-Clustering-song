@@ -92,22 +92,42 @@ def group_by_freq(freq, features, max_rate=None, min_freq=1):
 
 def limit_by_freq(freq, features, upper_limit, bottom_limit=None):
     """
+    Limit arrays of frequency and features by maximum frequency and
+    bottom frequency.
 
-    :param freq:
-    :param features:
-    :param upper_limit:
-    :param bottom_limit:
+    :param freq: array of frequencies.
+    :param features: array of amplitude.
+    :param float upper_limit: maximum frequency.
+    :param float bottom_limit: minimum frequency.
     :return:
     """
+    # Copy into arrays, in order to apply mask
     freq = np.array(freq[:], dtype=np.float)
     features = np.array(features[:], dtype=np.float)
+    # Mask for bottom limit
     if bottom_limit is not None:
         bottom_mask = freq >= bottom_limit
         features = features[bottom_mask]
         freq = freq[bottom_mask]
+    # Mask for upper limit
     upper_mask = freq <= upper_limit
     features = features[upper_mask]
     freq = freq[upper_mask]
+    return freq, features
+
+
+def dict_to_array(song_dict):
+    """
+
+    :param dict song_dict: load form dictionary to array
+    :return:
+    """
+    len_song = len(song_dict.keys())
+    freq = np.empty(len_song, dtype=np.float)
+    features = np.empty_like(freq)
+    for i, k in enumerate(song_dict.keys()):
+        freq[i] = k
+        features[i] = song_dict[k]
     return freq, features
 
 
