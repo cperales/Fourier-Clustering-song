@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from .transform import limit_by_freq, group_by_freq, dict_to_array
 import os
 from copy import deepcopy
@@ -91,7 +92,7 @@ def warp_distance(distance_metric, x, y, warp=200):
 def pair_distance(song_x,
                   song_y,
                   warp=None,
-                  upper_limit=6000,
+                  upper_limit=6000.0,
                   frames=1,
                   distance_metric='l2_norm'):
     """
@@ -117,7 +118,7 @@ def pair_distance(song_x,
     # FILTERING FREQUENCIES, LESS INFORMATION
     freq_x, features_x = limit_by_freq(freq_x,
                                        features_x,
-                                       upper_limit=6000)
+                                       upper_limit=upper_limit)
     # There is an interpolation in song_y, so there is no need
     # of limiting by frequencies again
 
@@ -125,12 +126,12 @@ def pair_distance(song_x,
     distance = 0.0
     freq_div = np.max(freq_x) / frames
     for i in range(1, frames + 1):
-        bottom_limit = (i - 1) * freq_div
+        lower_limit = (i - 1) * freq_div
         upper_limit = i * freq_div
         freq_x_frame, features_x_frame = limit_by_freq(freq_x,
                                                        features_x,
                                                        upper_limit=upper_limit,
-                                                       bottom_limit=bottom_limit)
+                                                       bottom_limit=lower_limit)
         features_y_frame = np.interp(freq_x_frame,
                                      freq_y,
                                      features_y)
@@ -146,3 +147,44 @@ def pair_distance(song_x,
         distance += frame_dist
 
     return distance
+
+
+def distance_matrix(fourier_folder,
+                    warp=None,
+                    upper_limit=6000.0,
+                    frames=1,
+                    distance_metric='l2_norm'):
+    """
+
+    :param fourier_folder:
+    :param warp:
+    :param upper_limit:
+    :param frames:
+    :param distance_metric:
+    :return:
+    """
+    # Creating a squared DataFrame as matrix distance
+    song_names = os.listdir(fourier_folder)
+    df = pd.DataFrame(columns=song_names + ['Songs'])
+    df['Songs'] = song_names
+    df = df.set_index('Songs')
+    #
+    song_names = [os.path.join(fourier_folder, song_name)
+                  for song_name in song_names]
+    number_songs = len(song_names)
+    for i in range(number_songs):
+        for j in range(i, number_songs):
+            if i != j:
+                distance = pair_distance(song_x=song_names[i],
+                                         song_y=song_names[j],
+                                         warp=warp,
+                                         upper_limit=upper_limit,
+                                         frames=frames,
+                                         distance_metric=distance_metric)
+                # Save also in reverse
+                df.loc[song_names[j], song_names[i]] = distance
+            else:
+                distance = 0.0
+            df.loc[song_names[i], song_names[j]] = distance
+
+    return df

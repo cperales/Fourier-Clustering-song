@@ -1,5 +1,5 @@
-# from foucluster.transform import pair_distance
 from foucluster.transform import all_songs
+from foucluster.distance import distance_matrix
 import configparser
 
 
@@ -19,13 +19,10 @@ all_songs(source_folder=source_folder,
           plot=False,
           image_folder=None)
 
+dist_df = distance_matrix(fourier_folder=output_folder,
+                          warp=None,
+                          upper_limit=6000.0,
+                          frames=1,
+                          distance_metric='l2_norm')
 
-# distance_limit = 0.14  # fastdtw
-# distance_limit = 70.0  # np.linalg.norm
-# distance_limit = 1854.0  # np.trapz
-# distance_limit = 0.9  # hellinger
-# distance_limit = 0.5  # Warping error
-# pair_distance(pickle_folder=pickle_folder,
-#               song_folder=output_folder,
-#               distance_limit=distance_limit,
-#               n_frames=1)
+dist_df.to_csv('example.csv', sep=';')
