@@ -2,7 +2,7 @@ import multiprocessing as mp
 import os
 import json
 import subprocess
-import matplotlib.pyplot as plt
+from .print import fourier_plot
 import numpy as np
 from scipy.io.wavfile import read
 
@@ -129,25 +129,6 @@ def dict_to_array(song_dict):
         freq[i] = k
         features[i] = song_dict[k]
     return freq, features
-
-
-def fourier_plot(freq, features,
-                 folder=None,
-                 filename=None):
-    """
-    """
-    fig = plt.figure(1)
-    # Turn interactive plotting off
-    plt.ioff()
-    plt.plot(freq, features)
-    plt.xlabel('frequency')
-    plt.ylabel('amplitude')
-    if folder is None:
-        folder = ''
-    if filename is not None:
-        plt.savefig(os.path.join(folder,
-                                 filename + '.png'))
-    plt.close(fig)
 
 
 def time_to_frequency(song,
