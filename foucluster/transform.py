@@ -2,7 +2,7 @@ import multiprocessing as mp
 import os
 import json
 import subprocess
-from .print import fourier_plot
+from .fouplot import fourier_plot
 import numpy as np
 from scipy.io.wavfile import read
 
@@ -170,25 +170,35 @@ def time_to_frequency(song,
     full_json_name = os.path.join(output_folder, json_name)
     if not os.path.isfile(full_json_name) or overwrite is True:
         # Fourier transformation
-        frequencies, fourier_series = fourier_song(wav_file=wav_file,
-                                                   rate_limit=rate_limit)
+        try:
+            try:
+                frequencies, fourier_series = \
+                    fourier_song(wav_file=wav_file,
+                                 rate_limit=rate_limit)
+            except MemoryError:
+                rate_limit = rate_limit / 2.0
+                frequencies, fourier_series = \
+                    fourier_song(wav_file=wav_file,
+                                 rate_limit=rate_limit)
 
-        # Transform to dict
-        freq_dict = dict()
-        for x, y in zip(frequencies, fourier_series):
-            freq_dict.update({str(x): y})
+            # Transform to dict
+            freq_dict = dict()
+            for x, y in zip(frequencies, fourier_series):
+                freq_dict.update({str(x): y})
 
-        # Save as JSON
-        json_to_save = {song: freq_dict}
-        with open(full_json_name, 'w') as output:
-            json.dump(json_to_save, output)
+            # Save as JSON
+            json_to_save = {song: freq_dict}
+            with open(full_json_name, 'w') as output:
+                json.dump(json_to_save, output)
 
-        # Plotting
-        if plot is True:
-            fourier_plot(freq=frequencies,
-                         features=fourier_series,
-                         folder=image_folder,
-                         filename=song_name)
+            # Plotting
+            if plot is True:
+                fourier_plot(freq=frequencies,
+                             features=fourier_series,
+                             folder=image_folder,
+                             filename=song_name)
+        except MemoryError:
+            print('{} gives MemoryError'.format(song_name))
 
 
 def all_songs(source_folder,

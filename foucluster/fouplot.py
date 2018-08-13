@@ -1,15 +1,20 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import os
+import seaborn as sns
 
 
-def heatmap_song(song_df):
-    plt.pcolor(song_df)
-    plt.yticks(np.arange(0.5, len(song_df.index), 1),
-               song_df.index)
-    plt.xticks(np.arange(0.5, len(song_df.columns), 1),
-               song_df.columns)
-    plt.show()
+def heatmap_song(song_df,
+                 image_name,
+                 image_folder=None):
+    # sns.clustermap(song_df)
+    fig, ax = plt.subplots()
+    sns.heatmap(song_df)
+    fig.subplots_adjust(left=0.25,
+                        bottom=0.25,
+                        right=1.0,
+                        top=0.95)
+    plt.savefig(os.path.join(image_folder, image_name) + '.png')
+    plt.close()
 
 
 def fourier_plot(freq, features,
