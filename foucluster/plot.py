@@ -9,8 +9,8 @@ def heatmap_song(song_df,
     # sns.clustermap(song_df)
     fig, ax = plt.subplots()
     sns.heatmap(song_df)
-    fig.subplots_adjust(left=0.25,
-                        bottom=0.25,
+    fig.subplots_adjust(left=0.35,
+                        bottom=0.35,
                         right=1.0,
                         top=0.95)
     plt.savefig(os.path.join(image_folder, image_name) + '.png')

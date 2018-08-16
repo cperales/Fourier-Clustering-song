@@ -2,7 +2,7 @@ import multiprocessing as mp
 import os
 import json
 import subprocess
-from .fouplot import fourier_plot
+from .plot import fourier_plot
 import numpy as np
 from scipy.io.wavfile import read
 
@@ -31,7 +31,7 @@ def transform_wav(mp3_file, wav_file):
     """
     if not os.path.isfile(wav_file):
         try:
-            bash_command = ['mpg123', '-w', wav_file, mp3_file]
+            bash_command = ['mpg123', '-w', wav_file, mp3_file, '--mono']
             subprocess.run(bash_command)
         except Exception as e:
             print(e)
@@ -56,8 +56,11 @@ def fourier_song(wav_file,
     fourier = np.abs(np.fft.fft(channel_1))
     w = np.linspace(0, rate, len(fourier))
 
-    w, fourier_to_plot = limit_by_freq(w, fourier, upper_limit=rate_limit)
-    w, fourier_to_plot = group_by_freq(w, fourier_to_plot)
+    w, fourier_to_plot = limit_by_freq(w,
+                                       fourier,
+                                       upper_limit=rate_limit,
+                                       lower_limit=20)
+    # w, fourier_to_plot = group_by_freq(w, fourier_to_plot)
 
     # a = np.mean(fourier_to_plot)
     fourier_to_plot[np.argmax(fourier_to_plot)] = 0.0
@@ -90,7 +93,7 @@ def group_by_freq(freq, features, max_rate=None, min_freq=1):
     return new_freq, new_features
 
 
-def limit_by_freq(freq, features, upper_limit, bottom_limit=None):
+def limit_by_freq(freq, features, upper_limit, lower_limit=None):
     """
     Limit arrays of frequency and features by maximum frequency and
     bottom frequency.
@@ -98,15 +101,15 @@ def limit_by_freq(freq, features, upper_limit, bottom_limit=None):
     :param freq: array of frequencies.
     :param features: array of amplitude.
     :param float upper_limit: maximum frequency.
-    :param float bottom_limit: minimum frequency.
+    :param float lower_limit: minimum frequency.
     :return:
     """
     # Copy into arrays, in order to apply mask
     freq = np.array(freq[:], dtype=np.float)
     features = np.array(features[:], dtype=np.float)
     # Mask for bottom limit
-    if bottom_limit is not None:
-        bottom_mask = freq >= bottom_limit
+    if lower_limit is not None:
+        bottom_mask = freq >= lower_limit
         features = features[bottom_mask]
         freq = freq[bottom_mask]
     # Mask for upper limit

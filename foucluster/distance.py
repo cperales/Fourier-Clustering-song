@@ -132,7 +132,7 @@ def pair_distance(song_x,
         freq_x_frame, features_x_frame = limit_by_freq(freq_x,
                                                        features_x,
                                                        upper_limit=upper_limit,
-                                                       bottom_limit=lower_limit)
+                                                       lower_limit=lower_limit)
         features_y_frame = np.interp(freq_x_frame,
                                      freq_y,
                                      features_y)
