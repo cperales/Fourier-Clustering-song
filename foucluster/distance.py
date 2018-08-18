@@ -86,44 +86,25 @@ def warp_distance(distance_metric, x, y, warp=200):
     return min_diff
 
 
-def pair_distance(song_x,
-                  song_y,
+def pair_distance(freq_x,
+                  features_x,
+                  freq_y,
+                  features_y,
                   warp=None,
-                  upper_limit=6000.0,
                   frames=1,
                   distance_metric='l2_norm'):
     """
 
-    :param song_x:
-    :param song_y:
+    :param freq_x:
+    :param features_x:
+    :param freq_y:
+    :param features_y:
     :param warp:
     :param upper_limit:
     :param frames:
     :param distance_metric:
     :return:
     """
-    # Extract frequencies and features from JSON
-    with open(song_x, 'r') as song_x_json:
-        song_x_dict = json.load(song_x_json)
-        # Bad indexing
-        song_x_dict = song_x_dict[list(song_x_dict.keys())[0]]
-        # Transform dict into numpy arrays
-        freq_x, features_x = dict_to_array(song_x_dict)
-
-    # Extract frequencies and features
-    with open(song_y, 'r') as song_y_json:
-        song_y_dict = json.load(song_y_json)
-        song_y_dict = song_y_dict[list(song_y_dict.keys())[0]]
-        freq_y, features_y = dict_to_array(song_y_dict)
-
-    # FILTERING FREQUENCIES, LESS INFORMATION
-    freq_x, features_x = limit_by_freq(freq_x,
-                                       features_x,
-                                       upper_limit=upper_limit)
-    # There is an interpolation in song_y, so there is no need
-    # of limiting by frequencies again
-
-    # TIME FRAMES
     distance = 0.0
     freq_div = np.max(freq_x) / frames
     for i in range(1, frames + 1):
@@ -151,6 +132,7 @@ def pair_distance(song_x,
 
 
 def distance_matrix(fourier_folder,
+                    merged_file=None,
                     warp=None,
                     upper_limit=6000.0,
                     frames=1,
@@ -158,37 +140,45 @@ def distance_matrix(fourier_folder,
     """
 
     :param fourier_folder:
+    :param merged_file:
     :param warp:
     :param upper_limit:
     :param frames:
     :param distance_metric:
     :return:
     """
+    with open(merged_file, 'r') as f:
+        merged_file = json.load(f)[0]
+
     # Creating a squared DataFrame as matrix distance
-    song_names = [os.path.splitext(s)[0] for s in os.listdir(fourier_folder)]
+    song_names = list(merged_file.keys())
     df = pd.DataFrame(columns=song_names + ['Songs'])
     df['Songs'] = song_names
     df = df.set_index('Songs')
-    number_songs = len(song_names)
-    max_value = 0.0  # In order to normalize
-    for i in range(number_songs):
-        for j in range(i, number_songs):
-            if i != j:
-                full_song_x = os.path.join(fourier_folder, song_names[i]) + '.json'
-                full_song_y = os.path.join(fourier_folder, song_names[j]) + '.json'
-                distance = pair_distance(song_x=full_song_x,
-                                         song_y=full_song_y,
+    max_value = 0.0  # In order to normalize distance values
+    for song_x in song_names:
+        freq_x, features_x = dict_to_array(merged_file[song_x])
+        # Filtering frequencies
+        freq_x, features_x = limit_by_freq(freq_x,
+                                           features_x,
+                                           upper_limit=upper_limit)
+        for song_y in song_names:
+            if song_x != song_y:
+                freq_y, features_y = dict_to_array(merged_file[song_y])
+                distance = pair_distance(freq_x=freq_x,
+                                         features_x=features_x,
+                                         freq_y=freq_y,
+                                         features_y=freq_y,
                                          warp=warp,
-                                         upper_limit=upper_limit,
                                          frames=frames,
                                          distance_metric=distance_metric)
                 # Save also in reverse
-                df.loc[song_names[j], song_names[i]] = distance
+                df.loc[song_y, song_x] = distance
                 # Save maximum value
                 if distance > max_value:
                     max_value = distance
             else:
                 distance = 0.0
-            df.loc[song_names[i], song_names[j]] = distance
+            df.loc[song_x, song_y] = distance
 
     return df.sort_index(axis=0, ascending=True).sort_index(axis=1, ascending=True) / max_value

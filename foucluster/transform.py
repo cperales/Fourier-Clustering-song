@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import os
+import glob
 import json
 import subprocess
 from .plot import fourier_plot
@@ -31,7 +32,7 @@ def transform_wav(mp3_file, wav_file):
     """
     if not os.path.isfile(wav_file):
         try:
-            bash_command = ['mpg123', '-w', wav_file, mp3_file, '--mono']
+            bash_command = ['mpg123', '-w', wav_file, '--mono', mp3_file]
             subprocess.run(bash_command)
         except Exception as e:
             print(e)
@@ -125,12 +126,8 @@ def dict_to_array(song_dict):
     :param dict song_dict: load form dictionary to array
     :return:
     """
-    len_song = len(song_dict.keys())
-    freq = np.empty(len_song, dtype=np.float)
-    features = np.empty_like(freq)
-    for i, k in enumerate(song_dict.keys()):
-        freq[i] = k
-        features[i] = song_dict[k]
+    freq = np.array([k for k in song_dict.keys()], dtype=np.float)
+    features = np.array([v for v in song_dict.values()], dtype=np.float)
     return freq, features
 
 
@@ -242,3 +239,10 @@ def all_songs(source_folder,
 
     with mp.Pool(processes=int(mp.cpu_count() / 2)) as p:
         p.starmap(time_to_frequency, songs)
+
+    read_files = glob.glob(os.path.join(output_folder,
+                                        '*.json'))
+
+    with open("merged_file.json", "wb") as outfile:
+        outfile.write('[{}]'.format(','.join([open(f, 'r').read()
+                                              for f in read_files])).encode('utf8'))
