@@ -100,7 +100,6 @@ def pair_distance(freq_x,
     :param freq_y:
     :param features_y:
     :param warp:
-    :param upper_limit:
     :param frames:
     :param distance_metric:
     :return:
@@ -126,13 +125,12 @@ def pair_distance(freq_x,
                                        features_x_frame,
                                        features_y_frame,
                                        warp)
-        distance += frame_dist
+        distance += frame_dist / frames
 
     return distance
 
 
 def distance_matrix(fourier_folder,
-                    merged_file=None,
                     warp=None,
                     upper_limit=6000.0,
                     frames=1,
@@ -140,15 +138,18 @@ def distance_matrix(fourier_folder,
     """
 
     :param fourier_folder:
-    :param merged_file:
     :param warp:
     :param upper_limit:
     :param frames:
     :param distance_metric:
     :return:
     """
-    with open(merged_file, 'r') as f:
-        merged_file = json.load(f)[0]
+    with open(os.path.join(fourier_folder,
+                           'merged_file.json'), 'r') as f:
+        merged_file_list = json.load(f)
+
+    merged_file = merged_file_list[0]
+    [merged_file.update(d) for d in merged_file_list]
 
     # Creating a squared DataFrame as matrix distance
     song_names = list(merged_file.keys())
@@ -168,7 +169,7 @@ def distance_matrix(fourier_folder,
                 distance = pair_distance(freq_x=freq_x,
                                          features_x=features_x,
                                          freq_y=freq_y,
-                                         features_y=freq_y,
+                                         features_y=features_y,
                                          warp=warp,
                                          frames=frames,
                                          distance_metric=distance_metric)

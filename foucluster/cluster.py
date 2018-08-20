@@ -93,27 +93,6 @@ def score_cluster(cluster_df):
     # Find correspondences between given classes and cluster classes
     score = []
     correspondence_dict = {}
-    # max_c = 0.0
-    # for e in np.unique(accurate_class):
-    #     pos_e = accurate_class == e
-    #     for p in np.unique(cluster_class):
-    #         pos_p = cluster_class == p
-    #         c = np.average(pos_p == pos_e)
-    #         if c >= max_c and p not in correspondence_dict.keys():
-    #             correspondence_dict.update({p: e})
-    #             max_c = c
-    #     score.append(max_c)
-    #
-    # for p in np.unique(cluster_class):
-    #     if p not in correspondence_dict.keys():
-    #         max_c = 0.0
-    #         pos_p = cluster_class == p
-    #         for e in np.unique(accurate_class):
-    #             pos_e = accurate_class == e
-    #             c = np.average(pos_p == pos_e)
-    #             if c >= max_c:
-    #                 correspondence_dict.update({p: e})
-    #                 max_c = c
 
     for p in np.unique(cluster_class):
         max_c = 0.0

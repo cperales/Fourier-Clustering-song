@@ -59,9 +59,9 @@ def fourier_song(wav_file,
 
     w, fourier_to_plot = limit_by_freq(w,
                                        fourier,
-                                       upper_limit=rate_limit,
-                                       lower_limit=20)
-    # w, fourier_to_plot = group_by_freq(w, fourier_to_plot)
+                                       lower_limit=10,
+                                       upper_limit=rate_limit)
+    w, fourier_to_plot = group_by_freq(w, fourier_to_plot)
 
     # a = np.mean(fourier_to_plot)
     fourier_to_plot[np.argmax(fourier_to_plot)] = 0.0
@@ -71,26 +71,29 @@ def fourier_song(wav_file,
     return w, fourier_to_plot
 
 
-def group_by_freq(freq, features, max_rate=None, min_freq=1):
+def group_by_freq(freq, features, step_size=20):
     """
 
     :param freq:
     :param features:
-    :param max_rate:
-    :param min_freq:
+    :param step_size:
     :return:
     """
-    if max_rate is None:
-        max_rate = np.max(freq)
-    final_length = int(max_rate / min_freq)
-    new_freq = np.empty(final_length)
-    new_features = np.empty(final_length)
-    for i in range(final_length):
-        mask_1 = freq >= i
-        mask_2 = freq < (i + min_freq)
+    min_freq = int(np.min(freq))
+    max_freq = int(np.max(freq))
+    length = int((max_freq - min_freq) / step_size) + 1
+    new_freq = np.empty(length, dtype=np.float)
+    new_features = np.empty(length, dtype=np.float)
+    i = 0
+    for freq_i in range(min_freq, max_freq, step_size):
+        mask_1 = freq >= freq_i
+        mask_2 = freq < freq_i + step_size
         mask = mask_1 * mask_2
-        new_freq[i] = np.mean(freq[mask])
+        new_freq[i] =  np.mean(freq[mask])
         new_features[i] = np.mean(features[mask])
+        i += 1
+    new_freq = np.array(new_freq, dtype=np.float)
+    new_features = np.array(new_features, dtype=np.float)
     return new_freq, new_features
 
 
@@ -224,11 +227,16 @@ def all_songs(source_folder,
     :param image_folder: if plotting is True, is the folder
         where the Fourier data is saved.
     """
+    merged_file = os.path.join(output_folder, 'merged_file.json')
+
     if not os.path.isdir(temp_folder):
         os.makedirs(temp_folder)
 
     if not os.path.isdir(output_folder):
         os.makedirs(output_folder)
+    else:
+        if os.path.isfile(merged_file):
+            os.remove(merged_file)
 
     if plot is True and not os.path.isdir(image_folder):
         os.makedirs(image_folder)
@@ -243,6 +251,6 @@ def all_songs(source_folder,
     read_files = glob.glob(os.path.join(output_folder,
                                         '*.json'))
 
-    with open("merged_file.json", "wb") as outfile:
-        outfile.write('[{}]'.format(','.join([open(f, 'r').read()
-                                              for f in read_files])).encode('utf8'))
+    with open(merged_file, 'wb') as outfile:
+        outfile.write(('[{}]'.format(','.join([open(f, 'r').read()
+                                               for f in read_files]))).encode('utf8'))
