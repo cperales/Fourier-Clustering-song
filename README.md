@@ -1,31 +1,27 @@
-# Clustering de canciones mediante Fourier
+# Fourier song clustering
 
-*README is still in spanish because this packages is for
-[PyCon ES 2018](https://2018.es.pycon.org/).
-But it will translated into English*
+*This project will be presented at [PyCon ES 2018](https://2018.es.pycon.org/).
+An informative note can be found in spanish
+[here](https://github.com/cperales/Fourier-classifying-songs/blob/master/PyConES_2018.md)*
 
-## Resumen
-Teniendo un conjunto de canciones, ¿cuáles son las más similares entre sí?
-¿Podremos crear playlists de canciones que tengan un ritmo similar? Analizando
-solo las frecuencias, identificaremos canciones similares y crearemos un
-modelo de machine learning para encontrar nuevas canciones que os gusten.
+## Motivation
+Recommendation song systems nowadays, like **Spotify**, use song clustering by made up
+[parameters](https://www.theverge.com/tldr/2018/2/5/16974194/spotify-recommendation-algorithm-playlist-hack-nelson)
+such as *danceability*, *energy*, *instrumentalness*, ... etc, which need an expert in that area to create those
+parameters.
 
-## Motivación
-Quienes tengan una cuenta en **Spotify** que usen a menudo sabrán que cada
-semana te recomiendan nuevas canciones, bajo la lista *Descubrimiento Semanal*.
-Como **Spotify** categoriza las canciones en función de
-[parámetros](https://www.theverge.com/tldr/2018/2/5/16974194/spotify-recommendation-algorithm-playlist-hack-nelson)
-como la *energía*, *instrumentalidad*, etc, existe por detrás un proceso de clasificación en base a estos parámetros.
+In order to avoid expert knowledge and make access to machine
+learning applied to song easier, this library
+use signal analysis for measuring distances between songs.
+With this distances, when the amount of songs is considerable clustering
+can be applied.
 
-Pero, sin acceso a estos parámetros, ¿cómo podríamos encontrar canciones similares, y agruparlas? Como
-[las notas musicales tienen frecuencias asociadas](https://www.intmath.com/trigonometric-graphs/music.php),
-esta propuesta se fundamenta en pasar de series temporales a series frecuenciales, y agrupar estas series de
-frecuencias usando varias técnicas y métricas de distancia.
+Because [musical notes have associated frequencies](https://www.intmath.com/trigonometric-graphs/music.php),
+this proposal is based on transforming from time series to frequency series, and then grouping theses series
+using various techniques and distance metrics.
 
-## De tiempo a frecuencias
-El paso de tiempo a frecuencia se puede conseguir mediante una función matemática llamada
-[transformada de Fourier](https://es.wikipedia.org/wiki/Transformada_de_Fourier). La transformada
-de Fourier es una [aplicación lineal](https://math.stackexchange.com/questions/140788/how-is-the-fourier-transform-linear)
-que permite pasar del dominio de los tiempos al dominio de las frecuencias. Esto es, si tenemos un sonido registrado,
-podemos encontrar la frecuencias a las que vibra a través de una transformada de Fourier, sin perder información. Esta
-función está implementada en la librería **numpy**.
+## Use
+
+An example as a commented script, using this library, can be found in
+[example.py](https://github.com/cperales/Fourier-classifying-songs/blob/master/example.py). Python
+requirements are listed in *requirements.txt*, and it is also necessary install *mpg123* or *ffmpeg*.

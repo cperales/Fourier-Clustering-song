@@ -4,8 +4,7 @@ from .transform import limit_by_freq, group_by_freq, dict_to_array
 import os
 from copy import deepcopy
 import json
-# from scipy.integrate import quad
-# from dtw import dtw, fastdtw
+import glob
 
 # sqrt(2) with default precision np.float64
 _SQRT2 = np.sqrt(2)
@@ -144,6 +143,14 @@ def distance_matrix(fourier_folder,
     :param distance_metric:
     :return:
     """
+    merged_file = os.path.join(fourier_folder, 'merged_file.json')
+    if os.path.isfile(merged_file):
+        os.remove(merged_file)
+    read_files = glob.glob(os.path.join(fourier_folder, '*.json'))
+    with open(merged_file, 'wb') as outfile:
+        outfile.write(('[{}]'.format(','.join([open(f, 'r').read()
+                                               for f in read_files]))).encode('utf8'))
+
     with open(os.path.join(fourier_folder,
                            'merged_file.json'), 'r') as f:
         merged_file_list = json.load(f)

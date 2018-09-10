@@ -55,23 +55,24 @@ def fourier_song(wav_file,
 
     # Fourier analysis
     fourier = np.abs(np.fft.fft(channel_1))
-    w = np.linspace(0, rate, len(fourier))
+    freq = np.linspace(0, rate, len(fourier))
 
-    w, fourier_to_plot = limit_by_freq(w,
-                                       fourier,
-                                       lower_limit=10,
-                                       upper_limit=rate_limit)
-    w, fourier_to_plot = group_by_freq(w, fourier_to_plot)
+    # 20 Hz is the lowest frequency audible by humans
+    freq, fourier = limit_by_freq(freq,
+                                  fourier,
+                                  lower_limit=10,
+                                  upper_limit=rate_limit)
+    freq, fourier = group_by_freq(freq,
+                                  fourier,
+                                  step_size=10)
 
-    # a = np.mean(fourier_to_plot)
-    fourier_to_plot[np.argmax(fourier_to_plot)] = 0.0
-    a = np.max(fourier_to_plot) / 100.0  # Max frequency will be 100.0
-    fourier_to_plot = fourier_to_plot / a
+    a = np.max(fourier) / 100.0  # Max frequency will be 100.0
+    fourier = fourier / a
 
-    return w, fourier_to_plot
+    return freq, fourier
 
 
-def group_by_freq(freq, features, step_size=20):
+def group_by_freq(freq, features, step_size=10):
     """
 
     :param freq:
