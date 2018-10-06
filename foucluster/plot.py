@@ -6,7 +6,6 @@ import seaborn as sns
 def heatmap_song(song_df,
                  image_name,
                  image_folder=None):
-    # sns.clustermap(song_df)
     fig, ax = plt.subplots()
     sns.heatmap(song_df)
     fig.subplots_adjust(left=0.35,
