@@ -1,4 +1,4 @@
-# Fourier song clustering
+# FouCluster
 
 *This project will be presented at [PyCon ES 2018](https://2018.es.pycon.org/).
 An informative note can be found in spanish
