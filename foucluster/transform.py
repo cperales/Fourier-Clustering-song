@@ -10,11 +10,9 @@ from .plot import fourier_plot, song_plot
 
 def removing_spaces(source_folder):
     for song in os.listdir(source_folder):
-        new_song = list()
-        string_list = song.split() if len(song.split()) else song.split('_')
-        for string in string_list:
-            if string != '-' and not string.isdigit():
-                new_song.append(string)
+        sep = ' ' if ' ' in song else '_'
+        new_song = [string for string in song.split(sep)
+                    if string != '-' and not string.isdigit()]
         new_song = '_'.join(new_song)
         file = os.path.join(source_folder, song)
         new_file = os.path.join(source_folder, new_song)
@@ -82,17 +80,14 @@ def group_by_freq(freq, features, step_size=10):
     """
     min_freq = int(np.min(freq))
     max_freq = int(np.max(freq))
-    length = int((max_freq - min_freq) / step_size) + 1
-    new_freq = np.empty(length, dtype=np.float)
-    new_features = np.empty(length, dtype=np.float)
-    i = 0
+    new_freq = []
+    new_features = []
     for freq_i in range(min_freq, max_freq, step_size):
         mask_1 = freq >= freq_i
         mask_2 = freq < freq_i + step_size
         mask = mask_1 * mask_2
-        new_freq[i] = np.mean(freq[mask])
-        new_features[i] = np.mean(features[mask])
-        i += 1
+        new_freq.append(np.mean(freq[mask]))
+        new_features.append(np.mean(features[mask]))
     new_freq = np.array(new_freq, dtype=np.float)
     new_features = np.array(new_features, dtype=np.float)
     return new_freq, new_features
@@ -193,7 +188,7 @@ def time_to_frequency(song,
             json.dump(json_to_save, output)
 
         # Plotting
-        if plot is True:
+        if plot:
             fourier_plot(freq=frequencies,
                          features=fourier_series,
                          folder=image_folder,
@@ -240,7 +235,7 @@ def all_songs(source_folder,
         if os.path.isfile(merged_file):
             os.remove(merged_file)
 
-    if plot is True and not os.path.isdir(image_folder):
+    if plot and not os.path.isdir(image_folder):
         os.makedirs(image_folder)
 
     songs = [(song, source_folder, temp_folder, output_folder, rate_limit,
