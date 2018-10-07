@@ -5,6 +5,7 @@ import os
 from copy import deepcopy
 import json
 import glob
+from .plot import diff_plot
 
 # sqrt(2) with default precision np.float64
 _SQRT2 = np.sqrt(2)
