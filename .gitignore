@@ -10,6 +10,9 @@ env/
 # Pycharm
 .idea/
 
+# Jupyter
+.ipynb_checkpoints/
+
 # Files
 *.png
 *.mp3
