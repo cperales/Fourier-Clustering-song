@@ -25,7 +25,7 @@ frames = int(config['Fourier']['frames'])
 rate_limit = float(config['Fourier']['rate'])
 metrics = distance_dict.keys()
 
-print('Transforming MP3 songs intoto Fourier series...')
+print('Transforming MP3 songs into Fourier series...')
 all_songs(source_folder=source_folder,
           output_folder=output_folder,
           temp_folder=temp_folder,
