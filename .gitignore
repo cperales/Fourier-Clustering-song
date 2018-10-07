@@ -32,3 +32,8 @@ more_songs/
 
 # Developper test
 test.py
+
+# Output files
+*.json
+*.csv
+docs/build
