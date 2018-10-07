@@ -109,3 +109,9 @@ def score_cluster(cluster_df):
                                                 index=cluster_df.index)
     score_vector = [e == p_c for e, p_c in zip(accurate_class, cluster_class_corrected)]
     return np.average(score_vector)
+
+
+def party_list(cluster_df, song=None):
+    if song is None or song not in cluster_df.columns:
+        song = cluster_df.index[0]
+    print(cluster_df.sort_values(song)[song])

@@ -3,12 +3,16 @@ __pycache__/
 
 # Distribution / packaging
 dist/
+*.egg-info/
 
 # Environments
 env/
 
 # Pycharm
 .idea/
+
+# Jupyter
+.ipynb_checkpoints/
 
 # Files
 *.png
@@ -17,3 +21,14 @@ env/
 
 # Config files
 *.ini
+
+# Folders
+genre/
+presentation/
+cluster/
+distance/
+fourier_series_json/
+more_songs/
+
+# Developper test
+test.py

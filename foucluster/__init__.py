@@ -1,9 +1,5 @@
 import warnings
+import logging
 
-
-def warn(*args, **kwargs):
-    pass
-
-
-warnings.warn = warn
-warnings.filterwarnings("ignore", message="numpy.dtype size changed")
+warnings.simplefilter('ignore')
+logger = logging.getLogger('foucluster')

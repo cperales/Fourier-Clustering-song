@@ -3,7 +3,7 @@ import os
 import glob
 import json
 import subprocess
-from .plot import fourier_plot
+from .plot import fourier_plot, song_plot
 import numpy as np
 from scipy.io.wavfile import read
 
@@ -201,6 +201,10 @@ def time_to_frequency(song,
                              features=fourier_series,
                              folder=image_folder,
                              filename=song_name)
+                rate, aud_data = read(wav_file)
+                song_plot(features=aud_data,
+                          folder=image_folder,
+                          filename=song_name)
         except MemoryError:
             print('{} gives MemoryError'.format(song_name))
 
@@ -246,7 +250,7 @@ def all_songs(source_folder,
               overwrite, plot, image_folder)
              for song in os.listdir(source_folder)]
 
-    with mp.Pool(processes=int(mp.cpu_count() / 2)) as p:
+    with mp.Pool(processes=max(int(mp.cpu_count() / 2), 1)) as p:
         p.starmap(time_to_frequency, songs)
 
     read_files = glob.glob(os.path.join(output_folder,
