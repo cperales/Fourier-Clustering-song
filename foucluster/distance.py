@@ -1,11 +1,11 @@
-import numpy as np
-import pandas as pd
-from .transform import limit_by_freq, group_by_freq, dict_to_array
-import os
-from copy import deepcopy
 import json
 import glob
-from .plot import diff_plot
+import os
+
+import numpy as np
+import pandas as pd
+from copy import deepcopy
+from .transform import limit_by_freq, dict_to_array
 
 # sqrt(2) with default precision np.float64
 _SQRT2 = np.sqrt(2)
@@ -149,8 +149,8 @@ def distance_matrix(fourier_folder,
         os.remove(merged_file)
     read_files = glob.glob(os.path.join(fourier_folder, '*.json'))
     with open(merged_file, 'wb') as outfile:
-        outfile.write(('[{}]'.format(','.join([open(f, 'r').read()
-                                               for f in read_files]))).encode('utf8'))
+        file_contents = [open(f, 'r').read() for f in read_files]
+        outfile.write('[{}]'.format(','.join(file_contents)).encode('utf8'))
 
     with open(os.path.join(fourier_folder,
                            'merged_file.json'), 'r') as f:
@@ -190,4 +190,6 @@ def distance_matrix(fourier_folder,
                 distance = 0.0
             df.loc[song_x, song_y] = distance
 
-    return df.sort_index(axis=0, ascending=True).sort_index(axis=1, ascending=True) / max_value
+    df = df.sort_index(axis=0, ascending=True)
+    df = df.sort_index(axis=1, ascending=True)
+    return df / max_value
