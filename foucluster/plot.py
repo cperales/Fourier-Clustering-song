@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
 import os
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def heatmap_song(song_df,

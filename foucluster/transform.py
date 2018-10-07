@@ -1,17 +1,17 @@
-import multiprocessing as mp
 import os
 import glob
 import json
 import subprocess
-from .plot import fourier_plot, song_plot
+import multiprocessing as mp
 import numpy as np
 from scipy.io.wavfile import read
+from .plot import fourier_plot, song_plot
 
 
 def removing_spaces(source_folder):
     for song in os.listdir(source_folder):
         new_song = list()
-        string_list = song.split() if len(song.split()) > 1 else song.split('_')
+        string_list = song.split() if len(song.split()) else song.split('_')
         for string in string_list:
             if string != '-' and not string.isdigit():
                 new_song.append(string)
@@ -90,7 +90,7 @@ def group_by_freq(freq, features, step_size=10):
         mask_1 = freq >= freq_i
         mask_2 = freq < freq_i + step_size
         mask = mask_1 * mask_2
-        new_freq[i] =  np.mean(freq[mask])
+        new_freq[i] = np.mean(freq[mask])
         new_features[i] = np.mean(features[mask])
         i += 1
     new_freq = np.array(new_freq, dtype=np.float)
@@ -110,8 +110,8 @@ def limit_by_freq(freq, features, upper_limit, lower_limit=None):
     :return:
     """
     # Copy into arrays, in order to apply mask
-    freq = np.array(freq[:], dtype=np.float)
-    features = np.array(features[:], dtype=np.float)
+    freq = np.array(freq, dtype=np.float)
+    features = np.array(features, dtype=np.float)
     # Mask for bottom limit
     if lower_limit is not None:
         bottom_mask = freq >= lower_limit
@@ -257,5 +257,5 @@ def all_songs(source_folder,
                                         '*.json'))
 
     with open(merged_file, 'wb') as outfile:
-        outfile.write(('[{}]'.format(','.join([open(f, 'r').read()
-                                               for f in read_files]))).encode('utf8'))
+        file_contents = [open(f, 'r').read() for f in read_files]
+        outfile.write('[{}]'.format(','.join(file_contents)).encode('utf8'))

@@ -1,10 +1,9 @@
+from copy import deepcopy
 from sklearn.cluster import AgglomerativeClustering, SpectralClustering, KMeans
 from sklearn.cluster import AffinityPropagation, MeanShift
 from scipy.spatial.distance import cdist
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from copy import deepcopy
 
 eps = 10**(-10)
 
@@ -46,7 +45,8 @@ def automatic_cluster(dist_df, method):
         y = clf.predict(dist_df)
     else:
         n_clusters = jump_method(dist_df=dist_df)
-        y = n_cluster_methods[method](n_clusters=n_clusters).fit_predict(dist_df)
+        cluster = n_cluster_methods[method](n_clusters=n_clusters)
+        y = cluster.fit_predict(dist_df)
 
     cluster_df = deepcopy(dist_df)
     cluster_df['Cluster'] = pd.Series(y, index=cluster_df.index)
@@ -87,11 +87,11 @@ def score_cluster(cluster_df):
     :return:
     """
     accurate_class = [int(n[0]) for n in cluster_df.index.tolist()]
+    accurate_class -= np.unique(accurate_class)[0]
     # Move to 0, 1, ... notation
-    accurate_class = np.array(accurate_class - np.unique(accurate_class)[0], dtype=int)
+    accurate_class = np.array(accurate_class, dtype=int)
     cluster_class = np.array(cluster_df['Cluster'].tolist(), dtype=int)
     # Find correspondences between given classes and cluster classes
-    score = []
     correspondence_dict = {}
 
     for p in np.unique(cluster_class):
@@ -107,7 +107,8 @@ def score_cluster(cluster_df):
     cluster_class_corrected = [correspondence_dict[p] for p in cluster_class]
     cluster_df['Cluster_corrected'] = pd.Series(cluster_class_corrected,
                                                 index=cluster_df.index)
-    score_vector = [e == p_c for e, p_c in zip(accurate_class, cluster_class_corrected)]
+    score_vector = [e == p_c for e, p_c in
+                    zip(accurate_class, cluster_class_corrected)]
     return np.average(score_vector)
 
 

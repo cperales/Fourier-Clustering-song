@@ -1,11 +1,13 @@
+import os
+import configparser
+
+import pandas as pd
+
 from foucluster.transform import all_songs
 from foucluster.distance import distance_matrix, distance_dict
 from foucluster.plot import heatmap_song
 from foucluster.cluster import automatic_cluster, \
     score_cluster, cluster_methods
-import configparser
-import pandas as pd
-import os
 
 
 config = configparser.ConfigParser()
@@ -101,7 +103,7 @@ df = pd.DataFrame(test_dict)
 df.to_csv(os.path.join(cluster_folder,
                        'cluster_test.csv'),
           sep=';', index=False)
+
+msg = 'Best performance ({}) is achieved with {} metric, {} cluster method'
 print()
-print('Best performance ({}) is achieved with {} metric, {} cluster method'.format(max_score,
-                                                                                   best_metric,
-                                                                                   best_cluster_method))
+print(msg.format(max_score, best_metric, best_cluster_method))
