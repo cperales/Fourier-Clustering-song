@@ -148,14 +148,7 @@ def distance_matrix(fourier_folder,
     if os.path.isfile(merged_file):
         os.remove(merged_file)
     read_files = glob.glob(os.path.join(fourier_folder, '*.json'))
-    with open(merged_file, 'wb') as outfile:
-        file_contents = [open(f, 'r').read() for f in read_files]
-        outfile.write('[{}]'.format(','.join(file_contents)).encode('utf8'))
-
-    with open(os.path.join(fourier_folder,
-                           'merged_file.json'), 'r') as f:
-        merged_file_list = json.load(f)
-
+    merged_file_list = [json.load(open(f)) for f in read_files]
     merged_file = merged_file_list[0]
     [merged_file.update(d) for d in merged_file_list]
 
