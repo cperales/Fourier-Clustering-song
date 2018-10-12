@@ -11,6 +11,8 @@ import os
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+for folder in config['Folder'].values():
+    os.makedirs(folder, exist_ok=True)
 source_folder = config['Folder']['Source']
 temp_folder = config['Folder']['Temp']
 image_folder = config['Folder']['Image']
