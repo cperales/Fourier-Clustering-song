@@ -226,17 +226,12 @@ def all_songs(source_folder,
     """
     merged_file = os.path.join(output_folder, 'merged_file.json')
 
-    if not os.path.isdir(temp_folder):
-        os.makedirs(temp_folder)
-
-    if not os.path.isdir(output_folder):
-        os.makedirs(output_folder)
-    else:
-        if os.path.isfile(merged_file):
-            os.remove(merged_file)
-
-    if plot and not os.path.isdir(image_folder):
-        os.makedirs(image_folder)
+    os.makedirs(temp_folder, exist_ok=True)
+    os.makedirs(output_folder, exist_ok=True)
+    if os.path.isfile(merged_file):
+        os.remove(merged_file)
+    if plot:
+        os.makedirs(image_folder, exist_ok=True)
 
     songs = [(song, source_folder, temp_folder, output_folder, rate_limit,
               overwrite, plot, image_folder)
