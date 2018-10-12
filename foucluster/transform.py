@@ -245,9 +245,8 @@ def all_songs(source_folder,
     with mp.Pool(processes=max(int(mp.cpu_count() / 2), 1)) as p:
         p.starmap(time_to_frequency, songs)
 
-    read_files = glob.glob(os.path.join(output_folder,
-                                        '*.json'))
+    read_files = glob.glob(os.path.join(output_folder, '*.json'))
 
-    with open(merged_file, 'wb') as outfile:
-        file_contents = [open(f, 'r').read() for f in read_files]
-        outfile.write('[{}]'.format(','.join(file_contents)).encode('utf8'))
+    with open(merged_file, 'w') as outfile:
+        file_contents = [open(f).read() for f in read_files]
+        outfile.write('[{}]'.format(','.join(file_contents)))
