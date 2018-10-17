@@ -13,10 +13,16 @@ setup(
                       'scipy',
                       'pandas',
                       'sklearn',
-                      'seaborn'
+                      'seaborn',
+                      'jupyter'
                       ],
     include_package_data=True,
     setup_requires=[],
-    tests_require=[]
+    tests_require=[],
+    extras_require={
+        'docs': [
+            'sphinx'
+        ]
+    },
 )
 
