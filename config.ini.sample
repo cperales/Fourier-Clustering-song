@@ -1,0 +1,12 @@
+[Folder]
+Source = songs
+Temp = temp
+Image = image
+Output = output
+Distance = distance
+Cluster = cluster
+
+[Fourier]
+warp = 200
+frames = 1
+rate = 6000.0
