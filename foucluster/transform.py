@@ -80,14 +80,17 @@ def group_by_freq(freq, features, step_size=10):
     """
     min_freq = int(np.min(freq))
     max_freq = int(np.max(freq))
-    new_freq = []
-    new_features = []
+    length = int((max_freq - min_freq) / step_size) + 1
+    new_freq = np.empty(length, dtype=np.float)
+    new_features = np.empty(length, dtype=np.float)
+    i = 0
     for freq_i in range(min_freq, max_freq, step_size):
         mask_1 = freq >= freq_i
         mask_2 = freq < freq_i + step_size
         mask = mask_1 * mask_2
-        new_freq.append(np.mean(freq[mask]))
-        new_features.append(np.mean(features[mask]))
+        new_freq[i] =  np.mean(freq[mask])
+        new_features[i] = np.mean(features[mask])
+        i += 1
     new_freq = np.array(new_freq, dtype=np.float)
     new_features = np.array(new_features, dtype=np.float)
     return new_freq, new_features
@@ -166,39 +169,39 @@ def time_to_frequency(song,
     transform_wav(mp3_file=mp3_file, wav_file=wav_file)
 
     full_json_name = os.path.join(output_folder, json_name)
-    if os.path.isfile(full_json_name) and not overwrite:
-        return
-
-    # Fourier transformation
-    try:
+    if not os.path.isfile(full_json_name) or overwrite is True:
+        # Fourier transformation
         try:
-            frequencies, fourier_series = \
-                fourier_song(wav_file=wav_file, rate_limit=rate_limit)
+            try:
+                frequencies, fourier_series = \
+                    fourier_song(wav_file=wav_file,
+                                 rate_limit=rate_limit)
+            except MemoryError:
+                rate_limit = rate_limit / 2.0
+                frequencies, fourier_series = \
+                    fourier_song(wav_file=wav_file,
+                                 rate_limit=rate_limit)
+
+            # Transform to dict
+            freq_dict = {str(x): y for x, y in zip(frequencies, fourier_series)}
+
+            # Save as JSON
+            json_to_save = {song: freq_dict}
+            with open(full_json_name, 'w') as output:
+                json.dump(json_to_save, output)
+
+            # Plotting
+            if plot:
+                fourier_plot(freq=frequencies,
+                             features=fourier_series,
+                             folder=image_folder,
+                             filename=song_name)
+                rate, aud_data = read(wav_file)
+                song_plot(features=aud_data,
+                          folder=image_folder,
+                          filename=song_name)
         except MemoryError:
-            rate_limit = rate_limit / 2.0
-            frequencies, fourier_series = \
-                fourier_song(wav_file=wav_file, rate_limit=rate_limit)
-
-        # Transform to dict
-        freq_dict = {str(x): y for x, y in zip(frequencies, fourier_series)}
-
-        # Save as JSON
-        json_to_save = {song: freq_dict}
-        with open(full_json_name, 'w') as output:
-            json.dump(json_to_save, output)
-
-        # Plotting
-        if plot:
-            fourier_plot(freq=frequencies,
-                         features=fourier_series,
-                         folder=image_folder,
-                         filename=song_name)
-            rate, aud_data = read(wav_file)
-            song_plot(features=aud_data,
-                      folder=image_folder,
-                      filename=song_name)
-    except MemoryError:
-        print('{} gives MemoryError'.format(song_name))
+            print('{} gives MemoryError'.format(song_name))
 
 
 def all_songs(source_folder,
